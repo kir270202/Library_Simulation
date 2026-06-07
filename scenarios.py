@@ -8,7 +8,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "normal": {
         "key": "normal",
         "name": "Normalbetrieb",
-        "description": "Moderate Auslastung an einem regulaeren Studientag.",
+        "description": "Moderate Auslastung an einem regulären Studientag.",
         "simulation_minutes": 480,
         "sample_interval": 10,
         "arrivals_per_hour": 32,
@@ -30,8 +30,8 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     },
     "exam": {
         "key": "exam",
-        "name": "Pruefungsphase",
-        "description": "Hoehere Ankunftsrate, laengere Aufenthalte und mehr Gruppennachfrage.",
+        "name": "Prüfungsphase",
+        "description": "Höhere Ankunftsrate, längere Aufenthalte und mehr Gruppennachfrage.",
         "simulation_minutes": 480,
         "sample_interval": 10,
         "arrivals_per_hour": 54,
@@ -53,8 +53,8 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     },
     "reservation": {
         "key": "reservation",
-        "name": "Pruefungsphase mit Reservierungssystem",
-        "description": "Examensphase mit Prioritaet fuer reservierte Gruppenraeume.",
+        "name": "Prüfungsphase mit Reservierungssystem",
+        "description": "Examensphase mit Priorität für reservierte Gruppenräume.",
         "simulation_minutes": 480,
         "sample_interval": 10,
         "arrivals_per_hour": 54,
@@ -80,7 +80,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
 def get_scenario(key: str) -> dict[str, Any]:
     if key not in SCENARIOS:
         valid = ", ".join(SCENARIOS)
-        raise ValueError(f"Unbekanntes Szenario '{key}'. Gueltig sind: {valid}.")
+        raise ValueError(f"Unbekanntes Szenario '{key}'. Gültig sind: {valid}.")
     return deepcopy(SCENARIOS[key])
 
 

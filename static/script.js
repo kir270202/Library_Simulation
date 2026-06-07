@@ -3,9 +3,9 @@ const scenarioByKey = Object.fromEntries(scenarios.map((scenario) => [scenario.k
 
 const resourceOrder = ["study_seats", "pc_workstations", "group_rooms"];
 const resourceLabels = {
-    study_seats: "Lernplaetze",
-    pc_workstations: "PC-Plaetze",
-    group_rooms: "Gruppenraeume",
+    study_seats: "Lernplätze",
+    pc_workstations: "PC-Plätze",
+    group_rooms: "Gruppenräume",
 };
 const chartColors = {
     study_seats: "#287c69",
@@ -222,7 +222,7 @@ function updateCharts(result) {
 }
 
 async function runSimulation() {
-    statusMessage.textContent = "Simulation laeuft...";
+    statusMessage.textContent = "Simulation läuft...";
     simulateButton.disabled = true;
 
     try {

@@ -11,7 +11,7 @@
     <header class="app-header">
         <p class="course-label">Diskrete Simulation</p>
         <h1>Bibliotheks-/Lernraum-Simulation</h1>
-        <p>Simulation eines Studientages mit Lernplaetzen, PC-Plaetzen und Gruppenraeumen.</p>
+        <p>Simulation eines Studientages mit Lernplätzen, PC-Plätzen und Gruppenräumen.</p>
     </header>
 
     <main>
@@ -29,29 +29,34 @@
                             <option value="{{ scenario.key }}">{{ scenario.name }}</option>
                         {% endfor %}
                     </select>
+                    <small>Setzt typische Startwerte für die Simulation. Die Werte können danach geändert werden.</small>
                 </label>
 
                 <label class="field" for="study_seats">
-                    <span>Lernplaetze</span>
+                    <span>Lernplätze</span>
                     <input id="study_seats" name="study_seats" type="number" min="0" step="1">
+                    <small>Anzahl normaler Einzelarbeitsplätze.</small>
                 </label>
 
                 <label class="field" for="pc_workstations">
-                    <span>PC-Plaetze</span>
+                    <span>PC-Plätze</span>
                     <input id="pc_workstations" name="pc_workstations" type="number" min="0" step="1">
+                    <small>Arbeitsplätze mit Computer.</small>
                 </label>
 
                 <label class="field" for="group_rooms">
-                    <span>Gruppenraeume</span>
+                    <span>Gruppenräume</span>
                     <input id="group_rooms" name="group_rooms" type="number" min="0" step="1">
+                    <small>Räume für Gruppen von 2 bis 6 Personen.</small>
                 </label>
 
                 <div class="field range-field">
-                    <label for="arrivals_per_hour">Ankuenfte/Stunde</label>
+                    <label for="arrivals_per_hour">Ankünfte/Stunde</label>
                     <div class="range-row">
                         <input id="arrivals_per_hour_range" type="range" min="0" max="100" step="1">
                         <input id="arrivals_per_hour" name="arrivals_per_hour" type="number" min="0" step="1">
                     </div>
+                    <small>Durchschnittliche Anzahl neuer Studierender oder Gruppen pro Stunde.</small>
                 </div>
 
                 <div class="field range-field">
@@ -60,6 +65,7 @@
                         <input id="mean_stay_minutes_range" type="range" min="10" max="300" step="5">
                         <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="10" step="5">
                     </div>
+                    <small>Mittlere Nutzungsdauer. Die echte Dauer wird zufällig darum verteilt.</small>
                 </div>
 
                 <div class="field range-field">
@@ -68,11 +74,13 @@
                         <input id="max_wait_minutes_range" type="range" min="0" max="120" step="5">
                         <input id="max_wait_minutes" name="max_wait_minutes" type="number" min="0" step="5">
                     </div>
+                    <small>So lange wartet eine Anfrage maximal. Danach wird sie als abgewiesen gezählt.</small>
                 </div>
 
                 <label class="field" for="seed">
                     <span>Random Seed</span>
                     <input id="seed" name="seed" type="number" step="1">
+                    <small>Gleicher Seed bedeutet gleiche Zufallswerte und vergleichbare Ergebnisse.</small>
                 </label>
 
                 <div class="actions">
@@ -91,7 +99,7 @@
             </div>
             <div class="summary-grid">
                 <article class="metric-card">
-                    <span>Ankuenfte</span>
+                    <span>Ankünfte</span>
                     <strong id="metric-arrivals">0</strong>
                 </article>
                 <article class="metric-card">

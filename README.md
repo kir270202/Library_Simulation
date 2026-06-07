@@ -1,6 +1,6 @@
 # Bibliotheks-/Lernraum-Simulation mit SimPy
 
-Kleine Flask-Webanwendung fuer das Modul "Diskrete Simulation". Die App simuliert einen Studientag in einer Hochschulbibliothek mit Einzelarbeitsplaetzen, PC-Arbeitsplaetzen und Gruppenraeumen. Die Simulation nutzt SimPy, zufaellige Ankunftszeiten, Aufenthaltsdauern, Ressourcennachfrage und Gruppengroessen.
+Kleine Flask-Webanwendung für das Modul "Diskrete Simulation". Die App simuliert einen Studientag in einer Hochschulbibliothek mit Einzelarbeitsplätzen, PC-Arbeitsplätzen und Gruppenräumen. Die Simulation nutzt SimPy, zufällige Ankunftszeiten, Aufenthaltsdauern, Ressourcennachfrage und Gruppengrößen.
 
 ## Run without Docker
 
@@ -98,15 +98,15 @@ library-room-simulation/
 
 ## Szenarien
 
-`Normalbetrieb`: moderate Ankunftsintensitaet, normale Aufenthaltsdauer und ausgeglichene Nachfrage.
+`Normalbetrieb`: moderate Ankunftsintensität, normale Aufenthaltsdauer und ausgeglichene Nachfrage.
 
-`Pruefungsphase`: hoehere Ankunftsintensitaet, laengere Aufenthaltsdauer und staerkere Nachfrage nach allen Ressourcentypen.
+`Prüfungsphase`: höhere Ankunftsintensität, längere Aufenthaltsdauer und stärkere Nachfrage nach allen Ressourcentypen.
 
-`Pruefungsphase mit Reservierungssystem`: wie die Pruefungsphase, aber Gruppenraeume werden als SimPy `PriorityResource` modelliert. Ein Teil der Gruppen hat eine Reservierung und erhaelt Prioritaet in der Warteschlange.
+`Prüfungsphase mit Reservierungssystem`: wie die Prüfungsphase, aber Gruppenräume werden als SimPy `PriorityResource` modelliert. Ein Teil der Gruppen hat eine Reservierung und erhält Priorität in der Warteschlange.
 
 ## Bedienung
 
-Im Webinterface koennen Szenario, Ressourcenanzahl, Ankuenfte pro Stunde, mittlere Aufenthaltsdauer, maximale Wartezeit und Random Seed angepasst werden. Nach einem Klick auf "Simulation starten" ruft die Seite `POST /simulate` auf und aktualisiert Kennzahlen, Tabelle und Diagramme ohne Seitenreload.
+Im Webinterface können Szenario, Ressourcenanzahl, Ankünfte pro Stunde, mittlere Aufenthaltsdauer, maximale Wartezeit und Random Seed angepasst werden. Nach einem Klick auf "Simulation starten" ruft die Seite `POST /simulate` auf und aktualisiert Kennzahlen, Tabelle und Diagramme ohne Seitenreload.
 
 ## Wichtige Dateien
 
@@ -114,4 +114,4 @@ Im Webinterface koennen Szenario, Ressourcenanzahl, Ankuenfte pro Stunde, mittle
 - `simulation.py`: SimPy-Modell und Funktion `run_simulation(config: dict) -> dict`.
 - `scenarios.py`: vordefinierte Szenarien und Standardwerte.
 - `statistics.py`: Berechnung der Ergebniskennzahlen.
-- `docs/documentation.md`: ausfuehrliche Projektdokumentation auf Deutsch.
+- `docs/documentation.md`: ausführliche Projektdokumentation auf Deutsch.

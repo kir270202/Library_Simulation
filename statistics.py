@@ -6,9 +6,9 @@ from typing import Any
 RESOURCE_KEYS = ("study_seats", "pc_workstations", "group_rooms")
 
 RESOURCE_LABELS = {
-    "study_seats": "Einzelarbeitsplaetze",
-    "pc_workstations": "PC-Arbeitsplaetze",
-    "group_rooms": "Gruppenraeume",
+    "study_seats": "Einzelarbeitsplätze",
+    "pc_workstations": "PC-Arbeitsplätze",
+    "group_rooms": "Gruppenräume",
 }
 
 
