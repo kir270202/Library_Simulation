@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bibliotheks-/Lernraum-Simulation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <p class="course-label">Diskrete Simulation</p>
+        <h1>Bibliotheks-/Lernraum-Simulation</h1>
+        <p>Simulation eines Studientages mit Lernplaetzen, PC-Plaetzen und Gruppenraeumen.</p>
+    </header>
+
+    <main>
+        <section class="section-band">
+            <div class="section-heading">
+                <h2>Einstellungen</h2>
+                <p id="scenario-description"></p>
+            </div>
+
+            <form id="simulation-form" class="config-grid">
+                <label class="field field-wide" for="scenario">
+                    <span>Szenario</span>
+                    <select id="scenario" name="scenario">
+                        {% for scenario in scenarios %}
+                            <option value="{{ scenario.key }}">{{ scenario.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="field" for="study_seats">
+                    <span>Lernplaetze</span>
+                    <input id="study_seats" name="study_seats" type="number" min="0" step="1">
+                </label>
+
+                <label class="field" for="pc_workstations">
+                    <span>PC-Plaetze</span>
+                    <input id="pc_workstations" name="pc_workstations" type="number" min="0" step="1">
+                </label>
+
+                <label class="field" for="group_rooms">
+                    <span>Gruppenraeume</span>
+                    <input id="group_rooms" name="group_rooms" type="number" min="0" step="1">
+                </label>
+
+                <div class="field range-field">
+                    <label for="arrivals_per_hour">Ankuenfte/Stunde</label>
+                    <div class="range-row">
+                        <input id="arrivals_per_hour_range" type="range" min="0" max="100" step="1">
+                        <input id="arrivals_per_hour" name="arrivals_per_hour" type="number" min="0" step="1">
+                    </div>
+                </div>
+
+                <div class="field range-field">
+                    <label for="mean_stay_minutes">Aufenthalt in Minuten</label>
+                    <div class="range-row">
+                        <input id="mean_stay_minutes_range" type="range" min="10" max="300" step="5">
+                        <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="10" step="5">
+                    </div>
+                </div>
+
+                <div class="field range-field">
+                    <label for="max_wait_minutes">Wartezeit in Minuten</label>
+                    <div class="range-row">
+                        <input id="max_wait_minutes_range" type="range" min="0" max="120" step="5">
+                        <input id="max_wait_minutes" name="max_wait_minutes" type="number" min="0" step="5">
+                    </div>
+                </div>
+
+                <label class="field" for="seed">
+                    <span>Random Seed</span>
+                    <input id="seed" name="seed" type="number" step="1">
+                </label>
+
+                <div class="actions">
+                    <button id="simulate-button" type="submit" class="primary-button">
+                        <span aria-hidden="true" class="button-icon">&#9654;</span>
+                        Simulation starten
+                    </button>
+                    <p id="status-message" role="status"></p>
+                </div>
+            </form>
+        </section>
+
+        <section class="section-band summary-band" aria-live="polite">
+            <div class="section-heading">
+                <h2>Ergebnis</h2>
+            </div>
+            <div class="summary-grid">
+                <article class="metric-card">
+                    <span>Ankuenfte</span>
+                    <strong id="metric-arrivals">0</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Bedient</span>
+                    <strong id="metric-served">0</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Abgewiesen</span>
+                    <strong id="metric-rejected">0</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Ablehnungsrate</span>
+                    <strong id="metric-rejection-rate">0%</strong>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-band">
+            <div class="section-heading">
+                <h2>Diagramme</h2>
+            </div>
+            <div class="charts-grid">
+                <article class="chart-panel">
+                    <h3>Auslastung</h3>
+                    <canvas id="utilization-chart"></canvas>
+                </article>
+                <article class="chart-panel">
+                    <h3>Abgewiesen</h3>
+                    <canvas id="rejected-chart"></canvas>
+                </article>
+                <article class="chart-panel">
+                    <h3>Belegung</h3>
+                    <canvas id="occupancy-chart"></canvas>
+                </article>
+                <article class="chart-panel">
+                    <h3>Warteschlangen</h3>
+                    <canvas id="queue-chart"></canvas>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-band">
+            <div class="section-heading">
+                <h2>Tabelle</h2>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ressource</th>
+                            <th>Bedient</th>
+                            <th>Abgewiesen</th>
+                            <th>Durchschn. Wartezeit</th>
+                            <th>Auslastung</th>
+                            <th>Max. Warteschlange</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resource-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script id="scenario-data" type="application/json">{{ scenarios | tojson }}</script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+:root {
+    --bg: #f4f4f4;
+    --box: #ffffff;
+    --text: #222222;
+    --muted: #666666;
+    --border: #cccccc;
+    --blue: #2f6fbd;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.app-header,
+main {
+    width: min(1100px, calc(100% - 32px));
+    margin: 0 auto;
+}
+
+.app-header {
+    padding: 22px 0 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.course-label {
+    margin: 0 0 4px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    margin-bottom: 6px;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+h3 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.app-header p:last-child,
+.section-heading p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+main {
+    padding: 16px 0 32px;
+}
+
+.section-band {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: var(--box);
+    border: 1px solid var(--border);
+}
+
+.section-heading {
+    margin-bottom: 10px;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.field span,
+.field label {
+    font-size: 0.9rem;
+}
+
+.field-wide,
+.range-field,
+.actions {
+    grid-column: span 2;
+}
+
+.range-row {
+    display: grid;
+    grid-template-columns: 1fr 82px;
+    gap: 8px;
+    align-items: center;
+}
+
+input,
+select,
+button {
+    font: inherit;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 34px;
+    padding: 5px 7px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+}
+
+input[type="range"] {
+    padding: 0;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.primary-button {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid #1e5592;
+    background: var(--blue);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background: #245e9f;
+}
+
+.primary-button:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.button-icon {
+    display: none;
+}
+
+#status-message {
+    min-height: 20px;
+    margin: 0;
+    color: var(--muted);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.metric-card {
+    min-height: 68px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: #fafafa;
+}
+
+.metric-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.metric-card strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 1.35rem;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.chart-panel {
+    height: 230px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+}
+
+.chart-panel canvas {
+    width: 100%;
+    height: 180px !important;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+}
+
+table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+th,
+td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    background: #eeeeee;
+    font-weight: 700;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+@media (max-width: 850px) {
+    .config-grid,
+    .summary-grid,
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field-wide,
+    .range-field,
+    .actions {
+        grid-column: auto;
+    }
+
+    .chart-panel {
+        height: 220px;
+    }
+
+    .chart-panel canvas {
+        height: 170px !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .app-header,
+    main {
+        width: min(100% - 20px, 1100px);
+    }
+
+    .range-row {
+        grid-template-columns: 1fr;
+    }
+}
