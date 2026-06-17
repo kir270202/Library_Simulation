@@ -19,6 +19,8 @@ const scenarioSelect = document.getElementById("scenario");
 const scenarioDescription = document.getElementById("scenario-description");
 const statusMessage = document.getElementById("status-message");
 const simulateButton = document.getElementById("simulate-button");
+const interpretationSection = document.getElementById("interpretation-section");
+const interpretationList = document.getElementById("interpretation-list");
 
 const charts = {};
 
@@ -65,14 +67,25 @@ function applyScenarioDefaults() {
 function payloadFromForm() {
     return {
         scenario: scenarioSelect.value,
-        study_seats: Number(field("study_seats").value),
-        pc_workstations: Number(field("pc_workstations").value),
-        group_rooms: Number(field("group_rooms").value),
-        arrivals_per_hour: Number(field("arrivals_per_hour").value),
-        mean_stay_minutes: Number(field("mean_stay_minutes").value),
-        max_wait_minutes: Number(field("max_wait_minutes").value),
+        study_seats: field("study_seats").value,
+        pc_workstations: field("pc_workstations").value,
+        group_rooms: field("group_rooms").value,
+        arrivals_per_hour: field("arrivals_per_hour").value,
+        mean_stay_minutes: field("mean_stay_minutes").value,
+        max_wait_minutes: field("max_wait_minutes").value,
         seed: field("seed").value,
     };
+}
+
+function setStatus(type, message) {
+    statusMessage.className = `status-message status-${type}`;
+    statusMessage.textContent = message;
+}
+
+function setLoading(isLoading) {
+    simulateButton.disabled = isLoading;
+    simulateButton.classList.toggle("is-loading", isLoading);
+    form.setAttribute("aria-busy", isLoading ? "true" : "false");
 }
 
 function formatPercent(value) {
@@ -93,16 +106,36 @@ function updateTable(resources) {
     resourceOrder.forEach((key) => {
         const resource = resources[key];
         const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${resourceLabels[key]}</td>
-            <td>${resource.served}</td>
-            <td>${resource.rejected}</td>
-            <td>${resource.avg_waiting_time.toFixed(2)} min</td>
-            <td>${formatPercent(resource.utilization)}</td>
-            <td>${resource.max_queue_length}</td>
-        `;
+        [
+            resourceLabels[key],
+            resource.served,
+            resource.rejected,
+            `${resource.avg_waiting_time.toFixed(2)} min`,
+            formatPercent(resource.utilization),
+            resource.max_queue_length,
+        ].forEach((value) => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
         tbody.appendChild(row);
     });
+}
+
+function updateInterpretation(interpretation) {
+    interpretationList.innerHTML = "";
+
+    if (!interpretation || interpretation.length === 0) {
+        interpretationSection.hidden = true;
+        return;
+    }
+
+    interpretation.forEach((text) => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        interpretationList.appendChild(item);
+    });
+    interpretationSection.hidden = false;
 }
 
 function chartDataset(label, data, color) {
@@ -222,8 +255,8 @@ function updateCharts(result) {
 }
 
 async function runSimulation() {
-    statusMessage.textContent = "Simulation läuft...";
-    simulateButton.disabled = true;
+    setStatus("running", "Simulation läuft … bitte kurz warten.");
+    setLoading(true);
 
     try {
         const response = await fetch("/simulate", {
@@ -240,11 +273,13 @@ async function runSimulation() {
         updateSummary(result.summary);
         updateTable(result.resources);
         updateCharts(result);
-        statusMessage.textContent = "Ergebnisse aktualisiert.";
+        updateInterpretation(result.interpretation);
+        setStatus("success", "Simulation abgeschlossen.");
     } catch (error) {
-        statusMessage.textContent = error.message;
+        const detail = error.message ? ` ${error.message}` : "";
+        setStatus("error", `Fehler bei der Simulation. Bitte Parameter prüfen.${detail}`);
     } finally {
-        simulateButton.disabled = false;
+        setLoading(false);
     }
 }
 

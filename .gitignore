@@ -1,5 +1,29 @@
+# Python environments
+.venv/
 venv/
+env/
+ENV/
+
+# Python bytecode and test/cache output
 __pycache__/
 *.py[cod]
+*$py.class
 .pytest_cache/
+
+# Local Flask/runtime files
+instance/
+.env
+.flaskenv
+*.log
+*.sqlite
+*.sqlite3
+
+# Coverage/build output
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# OS/editor files
 .DS_Store

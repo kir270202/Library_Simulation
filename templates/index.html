@@ -18,7 +18,7 @@
         <section class="section-band">
             <div class="section-heading">
                 <h2>Einstellungen</h2>
-                <p id="scenario-description"></p>
+                <p id="scenario-description" class="scenario-description"></p>
             </div>
 
             <form id="simulation-form" class="config-grid">
@@ -62,8 +62,8 @@
                 <div class="field range-field">
                     <label for="mean_stay_minutes">Aufenthalt in Minuten</label>
                     <div class="range-row">
-                        <input id="mean_stay_minutes_range" type="range" min="10" max="300" step="5">
-                        <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="10" step="5">
+                        <input id="mean_stay_minutes_range" type="range" min="1" max="300" step="1">
+                        <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="1" step="1">
                     </div>
                     <small>Mittlere Nutzungsdauer. Die echte Dauer wird zufällig darum verteilt.</small>
                 </div>
@@ -85,10 +85,13 @@
 
                 <div class="actions">
                     <button id="simulate-button" type="submit" class="primary-button">
+                        <span aria-hidden="true" class="button-spinner"></span>
                         <span aria-hidden="true" class="button-icon">&#9654;</span>
-                        Simulation starten
+                        <span>Simulation starten</span>
                     </button>
-                    <p id="status-message" role="status"></p>
+                    <p id="status-message" class="status-message status-idle" role="status" aria-live="polite">
+                        Bereit.
+                    </p>
                 </div>
             </form>
         </section>
@@ -115,6 +118,13 @@
                     <strong id="metric-rejection-rate">0%</strong>
                 </article>
             </div>
+        </section>
+
+        <section id="interpretation-section" class="section-band interpretation-band" aria-live="polite" hidden>
+            <div class="section-heading">
+                <h2>Kurze Interpretation</h2>
+            </div>
+            <ul id="interpretation-list" class="interpretation-list"></ul>
         </section>
 
         <section class="section-band">

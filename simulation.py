@@ -5,7 +5,13 @@ from typing import Any
 import numpy as np
 import simpy
 
-from statistics import RESOURCE_KEYS, RESOURCE_LABELS, create_metric_buckets, finalize_results
+from statistics import (
+    RESOURCE_KEYS,
+    RESOURCE_LABELS,
+    build_interpretation,
+    create_metric_buckets,
+    finalize_results,
+)
 
 
 def _normalize_probabilities(probabilities: dict[str, float]) -> list[float]:
@@ -34,7 +40,7 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
     simulation_minutes = _positive_float(config, "simulation_minutes", 480)
     sample_interval = max(_positive_float(config, "sample_interval", 10), 1)
     arrivals_per_hour = _positive_float(config, "arrivals_per_hour", 32)
-    mean_stay_minutes = max(_positive_float(config, "mean_stay_minutes", 125), 10)
+    mean_stay_minutes = max(_positive_float(config, "mean_stay_minutes", 125), 0.1)
     max_wait_minutes = _positive_float(config, "max_wait_minutes", 25)
 
     capacities = {
@@ -83,8 +89,8 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
             "pc_workstations": 0.9,
             "group_rooms": 1.15,
         }[resource_key]
-        mean = mean_stay_minutes * resource_multiplier
-        low = max(10.0, mean * 0.35)
+        mean = max(mean_stay_minutes * resource_multiplier, 0.1)
+        low = max(0.1, mean * 0.35)
         high = max(low + 1.0, mean * 1.9)
         return float(rng.triangular(low, mean, high))
 
@@ -166,6 +172,7 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
         "summary": summary,
         "resources": resource_results,
         "timeline": timeline,
+        "interpretation": build_interpretation(summary, resource_results, config),
         "config": {
             "scenario": config.get("name", config.get("key", "Szenario")),
             "simulation_minutes": simulation_minutes,

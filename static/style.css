@@ -66,6 +66,13 @@ h3 {
     color: var(--muted);
 }
 
+.scenario-description {
+    margin-top: 6px;
+    padding: 9px 10px;
+    border-left: 3px solid var(--blue);
+    background: #f7f9fb;
+}
+
 main {
     padding: 16px 0 32px;
 }
@@ -147,6 +154,10 @@ input[type="range"] {
 }
 
 .primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     min-height: 36px;
     padding: 0 14px;
     border: 1px solid #1e5592;
@@ -165,13 +176,60 @@ input[type="range"] {
 }
 
 .button-icon {
+    display: inline-block;
+    line-height: 1;
+}
+
+.button-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+.primary-button.is-loading .button-spinner {
+    display: inline-block;
+}
+
+.primary-button.is-loading .button-icon {
     display: none;
 }
 
-#status-message {
-    min-height: 20px;
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.status-message {
+    min-height: 36px;
+    padding: 8px 10px;
     margin: 0;
+    border: 1px solid var(--border);
+    background: #ffffff;
     color: var(--muted);
+    font-weight: 600;
+}
+
+.status-running {
+    border-color: #2f6fbd;
+    background: #edf5ff;
+    color: #174a80;
+}
+
+.status-success {
+    border-color: #287c69;
+    background: #edf8f4;
+    color: #1f604f;
+}
+
+.status-error {
+    border-color: #b7475b;
+    background: #fff1f3;
+    color: #96384a;
 }
 
 .summary-grid {
@@ -197,6 +255,15 @@ input[type="range"] {
     display: block;
     margin-top: 4px;
     font-size: 1.35rem;
+}
+
+.interpretation-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.interpretation-list li + li {
+    margin-top: 6px;
 }
 
 .charts-grid {
