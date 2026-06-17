@@ -1,79 +1,72 @@
 # Bibliotheks-/Lernraum-Simulation mit SimPy
 
-Kleine Flask-Webanwendung für das Modul "Diskrete Simulation". Die App simuliert einen Studientag in einer Hochschulbibliothek mit Einzelarbeitsplätzen, PC-Arbeitsplätzen und Gruppenräumen. Die Simulation nutzt SimPy, zufällige Ankunftszeiten, Aufenthaltsdauern, Ressourcennachfrage und Gruppengrößen.
+Flask-Webanwendung für das Modul "Diskrete Simulation". Das Projekt simuliert einen Studientag in einer Hochschulbibliothek mit Einzelarbeitsplätzen, PC-Arbeitsplätzen und Gruppenräumen.
 
-## Run without Docker
+## Motivation
 
-Requirements:
+Vor Prüfungsphasen werden Lernplätze knapp. Die Simulation zeigt, wann Warteschlangen entstehen, welche Ressource zum Engpass wird und wie sich ein einfaches Reservierungssystem für Gruppenräume auswirken kann.
 
-- Python 3.10 or newer
-- `pip`
+## Technologien
 
-Create a virtual environment, install the dependencies, and start Flask:
+- Python
+- Flask
+- SimPy
+- NumPy
+- HTML/CSS/JavaScript
+- Chart.js
+- Docker
+
+## Funktionen
+
+- drei Szenarien: Normalbetrieb, Prüfungsphase, Prüfungsphase mit Reservierungssystem
+- editierbare Kapazitäten und Simulationsparameter
+- reproduzierbare Läufe über optionalen Random Seed
+- sichtbarer Laufstatus beim Start der Simulation
+- KPI-Karten, Ergebnistabelle und Diagramme
+- kurze automatische Interpretation der Ergebnisse
+- JSON-Endpunkt `POST /simulate`
+
+## Lokaler Start
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-On Windows:
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-
-Open the application in the browser:
+Danach im Browser öffnen:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-Stop the app with `Ctrl+C` in the terminal.
+Unter Windows:
 
-## Run with Docker
+```bash
+py -3 -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
 
-Requirements:
-
-- Docker
-- Docker Compose, if you want to use the compose command
-
-Start with Docker Compose:
+## Start mit Docker
 
 ```bash
 docker compose up --build
 ```
 
-Open the application in the browser:
+Danach:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-Stop the app with `Ctrl+C`. To remove the stopped container network afterwards, run:
+Container stoppen und entfernen:
 
 ```bash
 docker compose down
 ```
-
-Alternative without Docker Compose:
-
-```bash
-docker build -t library-room-simulation .
-docker run --rm -p 5000:5000 library-room-simulation
-```
-
-Open the application in the browser:
-
-```text
-http://127.0.0.1:5000
-```
-
-Inside Docker, Flask binds to `0.0.0.0` so that Docker port forwarding works. When started locally with `python app.py`, the app uses `127.0.0.1:5000` by default.
 
 ## Projektstruktur
 
@@ -83,9 +76,9 @@ library-room-simulation/
 +-- simulation.py
 +-- scenarios.py
 +-- statistics.py
++-- requirements.txt
 +-- Dockerfile
 +-- docker-compose.yml
-+-- requirements.txt
 +-- README.md
 +-- docs/
 |   +-- documentation.md
@@ -96,22 +89,18 @@ library-room-simulation/
     +-- script.js
 ```
 
-## Szenarien
+## Kurze Interpretation der Ergebnisse
 
-`Normalbetrieb`: moderate Ankunftsintensität, normale Aufenthaltsdauer und ausgeglichene Nachfrage.
+Eine hohe Auslastung bedeutet nicht automatisch ein gutes Ergebnis. Wenn Ressourcen fast dauerhaft belegt sind, entstehen schneller Warteschlangen und Ablehnungen. Wichtig sind deshalb Ablehnungsrate, durchschnittliche Wartezeit und maximale Warteschlangenlänge.
 
-`Prüfungsphase`: höhere Ankunftsintensität, längere Aufenthaltsdauer und stärkere Nachfrage nach allen Ressourcentypen.
+Das Reservierungssystem ist bewusst einfach modelliert: Reservierte Gruppen erhalten Priorität bei Gruppenräumen. Für eine Bewertung sollte das Szenario "Prüfungsphase" mit "Prüfungsphase mit Reservierungssystem" verglichen werden.
 
-`Prüfungsphase mit Reservierungssystem`: wie die Prüfungsphase, aber Gruppenräume werden als SimPy `PriorityResource` modelliert. Ein Teil der Gruppen hat eine Reservierung und erhält Priorität in der Warteschlange.
+## Modellgrenzen
 
-## Bedienung
+Die Parameter sind Annahmen und müssten in einer realen Untersuchung validiert werden. Das Modell enthält keine Datenbank, keinen Login, keine echten Reservierungsdaten und keine Tagesganglinie. Es bleibt absichtlich kompakt, damit Modell, Code und Ergebnisse nachvollziehbar sind.
 
-Im Webinterface können Szenario, Ressourcenanzahl, Ankünfte pro Stunde, mittlere Aufenthaltsdauer, maximale Wartezeit und Random Seed angepasst werden. Nach einem Klick auf "Simulation starten" ruft die Seite `POST /simulate` auf und aktualisiert Kennzahlen, Tabelle und Diagramme ohne Seitenreload.
+## Screenshots
 
-## Wichtige Dateien
+Für die finale Abgabe kann hier ein Screenshot der Weboberfläche ergänzt werden.
 
-- `app.py`: Flask-Routen und JSON-Verarbeitung.
-- `simulation.py`: SimPy-Modell und Funktion `run_simulation(config: dict) -> dict`.
-- `scenarios.py`: vordefinierte Szenarien und Standardwerte.
-- `statistics.py`: Berechnung der Ergebniskennzahlen.
-- `docs/documentation.md`: ausführliche Projektdokumentation auf Deutsch.
+Weitere Details stehen in [docs/documentation.md](docs/documentation.md).

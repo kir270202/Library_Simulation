@@ -54,7 +54,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "reservation": {
         "key": "reservation",
         "name": "Prüfungsphase mit Reservierungssystem",
-        "description": "Examensphase mit Priorität für reservierte Gruppenräume.",
+        "description": "Prüfungsphase mit Priorität für reservierte Gruppenräume.",
         "simulation_minutes": 480,
         "sample_interval": 10,
         "arrivals_per_hour": 54,

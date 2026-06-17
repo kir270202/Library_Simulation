@@ -78,3 +78,76 @@ def finalize_results(
     }
 
     return summary, resources
+
+
+def build_interpretation(
+    summary: dict[str, Any],
+    resources: dict[str, Any],
+    config: dict[str, Any],
+) -> list[str]:
+    """Create a short, human-readable interpretation for the current run."""
+    if summary["total_arrivals"] == 0:
+        return [
+            "Es gab in diesem Lauf keine Ankünfte. Für aussagekräftige Ergebnisse sollte die Ankunftsrate erhöht werden.",
+        ]
+
+    bottleneck_key = max(
+        RESOURCE_KEYS,
+        key=lambda key: (
+            resources[key]["rejected"],
+            resources[key]["max_queue_length"],
+            resources[key]["utilization"],
+        ),
+    )
+    bottleneck = resources[bottleneck_key]
+    rejection_rate = float(summary["rejection_rate"])
+    interpretation: list[str] = []
+
+    if (
+        bottleneck["rejected"] > 0
+        or bottleneck["max_queue_length"] > 0
+        or bottleneck["utilization"] >= 85
+    ):
+        interpretation.append(
+            "Hauptengpass ist wahrscheinlich "
+            f"{bottleneck['label']}: {bottleneck['rejected']} Abweisungen, "
+            f"maximale Warteschlange {bottleneck['max_queue_length']} und "
+            f"{bottleneck['utilization']:.2f}% Auslastung."
+        )
+    else:
+        interpretation.append(
+            "Im aktuellen Lauf entsteht kein deutlicher Engpass; die Ressourcen wirken für diese Nachfrage ausreichend."
+        )
+
+    if rejection_rate >= 20:
+        interpretation.append(
+            f"Die Ablehnungsrate ist mit {rejection_rate:.2f}% hoch und deutet auf spürbare Kapazitätsprobleme hin."
+        )
+    elif rejection_rate >= 5:
+        interpretation.append(
+            f"Die Ablehnungsrate ist mit {rejection_rate:.2f}% merkbar, aber noch nicht extrem."
+        )
+    else:
+        interpretation.append(
+            f"Die Ablehnungsrate ist mit {rejection_rate:.2f}% niedrig."
+        )
+
+    if config.get("reservation_enabled"):
+        interpretation.append(
+            "Das Reservierungssystem ist als Priorität für Gruppenräume aktiv. Für die Bewertung sollte dieses Szenario mit der Prüfungsphase ohne Reservierung verglichen werden."
+        )
+    elif resources["group_rooms"]["rejected"] > 0 or resources["group_rooms"]["max_queue_length"] > 0:
+        interpretation.append(
+            "Bei Gruppenräumen könnte ein Reservierungssystem oder zusätzliche Kapazität geprüft werden."
+        )
+
+    if bottleneck["utilization"] >= 90:
+        interpretation.append(
+            "Sehr hohe Auslastung ist nicht automatisch gut, weil sie Warteschlangen und Ablehnungen begünstigen kann."
+        )
+    else:
+        interpretation.append(
+            f"Naheliegende Maßnahme: Kapazität und Nachfrageverteilung bei {bottleneck['label']} weiter beobachten."
+        )
+
+    return interpretation

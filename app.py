@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 from typing import Any
 
@@ -12,22 +13,53 @@ from simulation import run_simulation
 app = Flask(__name__)
 
 
-RESOURCE_KEYS = ("study_seats", "pc_workstations", "group_rooms")
-
-
-def _number(payload: dict[str, Any], key: str, default: float, minimum: float) -> float:
+def _number(
+    payload: dict[str, Any],
+    key: str,
+    default: float,
+    minimum: float,
+    *,
+    exclusive_minimum: bool = False,
+) -> float:
     value = payload.get(key, default)
     try:
         number = float(value)
     except (TypeError, ValueError) as exc:
         raise ValueError(f"Parameter '{key}' muss eine Zahl sein.") from exc
-    if number < minimum:
+    if not math.isfinite(number):
+        raise ValueError(f"Parameter '{key}' muss eine endliche Zahl sein.")
+    if exclusive_minimum and number <= minimum:
+        raise ValueError(f"Parameter '{key}' muss groesser als {minimum:g} sein.")
+    if not exclusive_minimum and number < minimum:
         raise ValueError(f"Parameter '{key}' muss mindestens {minimum:g} sein.")
     return number
 
 
 def _integer(payload: dict[str, Any], key: str, default: int, minimum: int) -> int:
-    return int(round(_number(payload, key, default, minimum)))
+    number = _number(payload, key, default, minimum)
+    if not number.is_integer():
+        raise ValueError(f"Parameter '{key}' muss eine ganze Zahl sein.")
+    return int(number)
+
+
+def _optional_seed(payload: dict[str, Any], default: int | None) -> int | None:
+    seed = payload.get("seed", default)
+    if isinstance(seed, str):
+        seed = seed.strip()
+    if seed in ("", None):
+        return None
+
+    try:
+        number = _number({"seed": seed}, "seed", 0, 0)
+    except ValueError as exc:
+        raise ValueError(
+            "Parameter 'seed' muss leer oder eine nicht-negative ganze Zahl sein."
+        ) from exc
+    if not number.is_integer():
+        raise ValueError(
+            "Parameter 'seed' muss leer oder eine nicht-negative ganze Zahl sein."
+        )
+    return int(number)
 
 
 def _build_config(payload: dict[str, Any]) -> dict[str, Any]:
@@ -49,20 +81,17 @@ def _build_config(payload: dict[str, Any]) -> dict[str, Any]:
         payload, "arrivals_per_hour", config["arrivals_per_hour"], 0
     )
     config["mean_stay_minutes"] = _number(
-        payload, "mean_stay_minutes", config["mean_stay_minutes"], 10
+        payload,
+        "mean_stay_minutes",
+        config["mean_stay_minutes"],
+        0,
+        exclusive_minimum=True,
     )
     config["max_wait_minutes"] = _number(
         payload, "max_wait_minutes", config["max_wait_minutes"], 0
     )
 
-    seed = payload.get("seed", config.get("seed"))
-    if seed in ("", None):
-        config["seed"] = None
-    else:
-        try:
-            config["seed"] = int(seed)
-        except (TypeError, ValueError) as exc:
-            raise ValueError("Parameter 'seed' muss leer oder eine ganze Zahl sein.") from exc
+    config["seed"] = _optional_seed(payload, config.get("seed"))
 
     return config
 
@@ -87,5 +116,5 @@ def simulate():
 if __name__ == "__main__":
     host = os.environ.get("FLASK_HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "5000"))
-    debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
     app.run(host=host, port=port, debug=debug)
