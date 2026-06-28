@@ -2,7 +2,7 @@
 
 ## Zielsetzung
 
-Ziel des Projekts ist eine verständliche diskrete Simulation für eine Hochschulbibliothek. Die Anwendung zeigt, wie sich Nachfrage, Kapazitäten und Wartebereitschaft auf Lernplätze, PC-Arbeitsplätze und Gruppenräume auswirken.
+Ziel des Projekts ist eine verständliche diskrete Simulation für eine Hochschulbibliothek. Die Anwendung zeigt, wie sich Nachfrage, Kapazitäten und Wartebereitschaft über eine vollständige Prüfungsphase auf Lernplätze, PC-Arbeitsplätze und Gruppenräume auswirken.
 
 Die Simulation soll keine echte Bibliotheksplanung ersetzen. Sie ist ein bewusst vereinfachtes Modell für das Modul "Diskrete Simulation" und dient dazu, typische Engpässe sichtbar zu machen.
 
@@ -20,7 +20,9 @@ Das Modell untersucht deshalb:
 
 ## Modellbeschreibung
 
-Ein simulierter Tag dauert standardmäßig 480 Minuten. Neue Anfragen entstehen zufällig. Jede Anfrage benötigt genau einen Ressourcentyp:
+Eine Prüfungsphase besteht standardmäßig aus 14 getrennten Öffnungstagen mit jeweils 480 Minuten Öffnungszeit. Jeder Tag wird als eigene SimPy-Umgebung simuliert. Am Tagesanfang sind alle Ressourcen frei, alle Warteschlangen leer und es werden keine Studierenden, Gruppen, Reservierungen oder offenen Anfragen aus dem Vortag übernommen. Diese tägliche Rücksetzung modelliert die Annahme, dass die Bibliothek zwischen zwei Öffnungstagen vollständig schließt.
+
+Neue Anfragen entstehen zufällig. Jede Anfrage benötigt genau einen Ressourcentyp:
 
 - Einzelarbeitsplatz,
 - PC-Arbeitsplatz,
@@ -52,6 +54,22 @@ Die Kapazitäten sind im Webinterface editierbar. Werte kleiner als 0 werden abg
 
 Die numerischen Parameter sind Annahmen. In einer realen Untersuchung müssten sie mit Beobachtungen, Zähldaten oder Befragungen validiert werden.
 
+## Prüfungsphase und Replikationen
+
+Die Eingabefelder `Tage der Prüfungsphase`, `Öffnungszeit pro Tag` und `Wiederholungen` steuern den Simulationsumfang:
+
+- `Tage der Prüfungsphase`: Anzahl der getrennt simulierten Öffnungstage.
+- `Öffnungszeit pro Tag`: Dauer eines einzelnen Tages in Minuten.
+- `Wiederholungen`: Anzahl unabhängiger vollständiger Prüfungsphasen.
+
+Bei mehreren Wiederholungen simuliert das Backend die komplette Prüfungsphase mehrfach und mittelt die Ergebnisse. Angezeigte Summen wie Ankünfte, bediente Anfragen und abgewiesene Anfragen beschreiben eine durchschnittliche vollständige Prüfungsphase. Sie sind nicht die Summe aller Wiederholungen.
+
+Für Gesamtankünfte, Ablehnungsrate und mittlere Wartezeit werden zusätzlich Mittelwert, Standardabweichung und ein 95%-Konfidenzintervall berechnet. Bei nur einer Wiederholung ist die Standardabweichung 0 und das Konfidenzintervall fällt auf den beobachteten Wert zusammen, damit keine Division durch 0 entsteht.
+
+## Reproduzierbarkeit
+
+Ein fester Random Seed reproduziert das komplette Ergebnis einer Prüfungsphase. Aus dem Basis-Seed werden deterministisch getrennte Zufallsströme für jede Wiederholung und jeden Öffnungstag erzeugt. Dadurch bleiben die Tage unabhängig, aber ein Lauf mit demselben Seed liefert erneut dieselben Kennzahlen und Zeitreihen. Bleibt der Seed leer, erzeugt NumPy neue Zufallswerte.
+
 ## Szenarien
 
 ### Normalbetrieb
@@ -71,14 +89,14 @@ Wie die Prüfungsphase, aber Gruppenräume besitzen eine einfache Prioritätslog
 | Datei | Aufgabe |
 | --- | --- |
 | `app.py` | Flask-App, Startseite, Validierung, JSON-Endpunkt `/simulate` |
-| `simulation.py` | SimPy-Modell, Ankunftsprozess, Ressourcen, Warte- und Nutzungslogik |
+| `simulation.py` | SimPy-Modell, Einzeltage, Prüfungsphase, Replikationen und Aggregation |
 | `scenarios.py` | drei vordefinierte Szenarien mit Standardwerten |
 | `statistics.py` | Kennzahlen und kurze Interpretation |
 | `templates/index.html` | Weboberfläche |
 | `static/script.js` | Formularlogik, Fetch-Aufruf, Statusmeldungen, Diagramme |
 | `static/style.css` | Layout und visuelle Gestaltung |
 
-Frontend und Backend kommunizieren über JSON. Nach dem Klick auf "Simulation starten" zeigt die Oberfläche sofort den Status "Simulation läuft … bitte kurz warten.", sperrt den Button und aktualisiert danach Kennzahlen, Tabelle, Diagramme und Interpretation.
+Frontend und Backend kommunizieren über JSON. Nach dem Klick auf "Simulation starten" zeigt die Oberfläche sofort den Status "Prüfungsphase wird simuliert … bitte warten.", sperrt den Button und aktualisiert danach Kennzahlen, Tabellen, Diagramme und Interpretation.
 
 ## Kennzahlen
 
@@ -88,17 +106,21 @@ Die Simulation liefert:
 - bediente Anfragen,
 - abgewiesene Anfragen,
 - Ablehnungsrate,
+- mittlere Wartezeit über die Prüfungsphase,
+- stärkster Prüfungstag,
+- Tageswerte für Ankünfte, bediente und abgewiesene Anfragen,
 - durchschnittliche Wartezeit je Ressource,
 - Auslastung je Ressource,
 - maximale Warteschlangenlänge je Ressource,
-- Belegungsverlauf über den Tag,
-- Warteschlangenverlauf über den Tag.
+- Belegungsverlauf eines durchschnittlichen Prüfungstages,
+- Warteschlangenverlauf eines durchschnittlichen Prüfungstages,
+- Mittelwert, Standardabweichung und 95%-Konfidenzintervall für zentrale Kennzahlen.
 
 Die Auslastung wird als genutzte Ressourcenzeit geteilt durch verfügbare Ressourcenzeit berechnet. Hohe Auslastung ist nicht automatisch gut, weil sie bei knappen Ressourcen Warteschlangen und Ablehnungen begünstigen kann.
 
 ## Ergebnisse
 
-Die Ergebnisse werden in der Weboberfläche als KPI-Karten, Tabelle und Diagramme dargestellt. Die Balkendiagramme zeigen Auslastung und Abweisungen je Ressource. Die Liniendiagramme zeigen Belegung und Warteschlangen im Zeitverlauf.
+Die Ergebnisse werden in der Weboberfläche als KPI-Karten, Ressourcen- und Tagestabelle sowie Diagramme dargestellt. Die Balkendiagramme zeigen Auslastung und Abweisungen je Ressource. Die Liniendiagramme zeigen Belegung und Warteschlangen eines durchschnittlichen Prüfungstages. Weitere Diagramme zeigen Ankünfte, Bedienungen, Abweisungen, Ablehnungsrate und mittlere Wartezeit je Prüfungstag.
 
 Durch den Random Seed sind Ergebnisse reproduzierbar. Bleibt der Seed leer, erzeugt jeder Lauf neue Zufallswerte.
 
@@ -107,11 +129,13 @@ Durch den Random Seed sind Ergebnisse reproduzierbar. Bleibt der Seed leer, erze
 Nach jedem Lauf erstellt die Anwendung eine kurze Interpretation:
 
 - wahrscheinlicher Hauptengpass,
+- stärkster Prüfungstag,
 - Einordnung der Ablehnungsrate,
+- Einordnung der Wartezeit,
 - Hinweis zum Reservierungssystem,
 - naheliegende Maßnahme.
 
-Diese Interpretation ist bewusst kompakt. Für eine belastbare Bewertung sollten insbesondere die Prüfungsphase ohne Reservierung und die Prüfungsphase mit Reservierungssystem miteinander verglichen werden.
+Diese Interpretation ist bewusst kompakt und bezieht sich auf die gewählten Modellannahmen. Für eine belastbare Bewertung sollten insbesondere die Prüfungsphase ohne Reservierung und die Prüfungsphase mit Reservierungssystem miteinander verglichen und die Eingabewerte mit realen Daten validiert werden.
 
 ## Grenzen des Modells
 
@@ -134,11 +158,8 @@ Mögliche Erweiterungen wären:
 - tageszeitabhängige Ankunftsraten einbauen,
 - Gruppenräume mit unterschiedlichen Kapazitäten modellieren,
 - No-Shows im Reservierungssystem ergänzen,
-- mehrere unabhängige Replikationen durchführen,
 - Szenarien direkt nebeneinander vergleichen,
 - Ergebnisse als CSV exportieren.
-
-Die Replikationsfunktion wurde bewusst nicht eingebaut, weil sie für die vorhandenen Zeitreihen und Diagramme zusätzliche Aggregationslogik erfordern würde. Für die aktuelle Abgabe bleibt ein einzelner, reproduzierbarer Simulationslauf verständlicher.
 
 ## Startanleitung
 

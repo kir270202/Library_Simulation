@@ -7,7 +7,7 @@ from typing import Any
 from flask import Flask, jsonify, render_template, request
 
 from scenarios import get_scenario, list_scenarios
-from simulation import run_simulation
+from simulation import run_exam_period
 
 
 app = Flask(__name__)
@@ -29,16 +29,26 @@ def _number(
     if not math.isfinite(number):
         raise ValueError(f"Parameter '{key}' muss eine endliche Zahl sein.")
     if exclusive_minimum and number <= minimum:
-        raise ValueError(f"Parameter '{key}' muss groesser als {minimum:g} sein.")
+        raise ValueError(f"Parameter '{key}' muss größer als {minimum:g} sein.")
     if not exclusive_minimum and number < minimum:
         raise ValueError(f"Parameter '{key}' muss mindestens {minimum:g} sein.")
     return number
 
 
-def _integer(payload: dict[str, Any], key: str, default: int, minimum: int) -> int:
+def _integer(
+    payload: dict[str, Any],
+    key: str,
+    default: int,
+    minimum: int,
+    maximum: int | None = None,
+) -> int:
     number = _number(payload, key, default, minimum)
     if not number.is_integer():
         raise ValueError(f"Parameter '{key}' muss eine ganze Zahl sein.")
+    if maximum is not None and number > maximum:
+        raise ValueError(
+            f"Parameter '{key}' muss höchstens {maximum:g} sein."
+        )
     return int(number)
 
 
@@ -90,6 +100,20 @@ def _build_config(payload: dict[str, Any]) -> dict[str, Any]:
     config["max_wait_minutes"] = _number(
         payload, "max_wait_minutes", config["max_wait_minutes"], 0
     )
+    config["exam_days"] = _integer(
+        payload, "exam_days", config.get("exam_days", 14), 1, 60
+    )
+    config["opening_minutes_per_day"] = _integer(
+        payload,
+        "opening_minutes_per_day",
+        config.get("opening_minutes_per_day", config.get("simulation_minutes", 480)),
+        60,
+        1440,
+    )
+    config["simulation_minutes"] = config["opening_minutes_per_day"]
+    config["replications"] = _integer(
+        payload, "replications", config.get("replications", 30), 1, 100
+    )
 
     config["seed"] = _optional_seed(payload, config.get("seed"))
 
@@ -106,7 +130,7 @@ def simulate():
     payload = request.get_json(silent=True) or {}
     try:
         config = _build_config(payload)
-        result = run_simulation(config)
+        result = run_exam_period(config)
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
 

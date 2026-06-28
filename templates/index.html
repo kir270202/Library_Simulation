@@ -11,7 +11,7 @@
     <header class="app-header">
         <p class="course-label">Diskrete Simulation</p>
         <h1>Bibliotheks-/Lernraum-Simulation</h1>
-        <p>Simulation eines Studientages mit Lernplätzen, PC-Plätzen und Gruppenräumen.</p>
+        <p>Simulation einer Prüfungsphase mit getrennten Öffnungstagen, Lernplätzen, PC-Plätzen und Gruppenräumen.</p>
     </header>
 
     <main>
@@ -21,77 +21,107 @@
                 <p id="scenario-description" class="scenario-description"></p>
             </div>
 
-            <form id="simulation-form" class="config-grid">
-                <label class="field field-wide" for="scenario">
-                    <span>Szenario</span>
-                    <select id="scenario" name="scenario">
-                        {% for scenario in scenarios %}
-                            <option value="{{ scenario.key }}">{{ scenario.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <small>Setzt typische Startwerte für die Simulation. Die Werte können danach geändert werden.</small>
-                </label>
+            <form id="simulation-form" class="settings-form">
+                <div class="quick-settings">
+                    <label class="field" for="scenario">
+                        <span>Szenario</span>
+                        <select id="scenario" name="scenario">
+                            {% for scenario in scenarios %}
+                                <option value="{{ scenario.key }}">{{ scenario.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
 
-                <label class="field" for="study_seats">
-                    <span>Lernplätze</span>
-                    <input id="study_seats" name="study_seats" type="number" min="0" step="1">
-                    <small>Anzahl normaler Einzelarbeitsplätze.</small>
-                </label>
+                    <label class="field" for="exam_days">
+                        <span>Tage der Prüfungsphase</span>
+                        <input id="exam_days" name="exam_days" type="number" min="1" max="60" step="1">
+                    </label>
 
-                <label class="field" for="pc_workstations">
-                    <span>PC-Plätze</span>
-                    <input id="pc_workstations" name="pc_workstations" type="number" min="0" step="1">
-                    <small>Arbeitsplätze mit Computer.</small>
-                </label>
+                    <label class="field" for="replications">
+                        <span>Wiederholungen</span>
+                        <input id="replications" name="replications" type="number" min="1" max="100" step="1">
+                    </label>
 
-                <label class="field" for="group_rooms">
-                    <span>Gruppenräume</span>
-                    <input id="group_rooms" name="group_rooms" type="number" min="0" step="1">
-                    <small>Räume für Gruppen von 2 bis 6 Personen.</small>
-                </label>
+                    <label class="field" for="seed">
+                        <span>Random Seed</span>
+                        <input id="seed" name="seed" type="number" step="1">
+                    </label>
 
-                <div class="field range-field">
-                    <label for="arrivals_per_hour">Ankünfte/Stunde</label>
-                    <div class="range-row">
-                        <input id="arrivals_per_hour_range" type="range" min="0" max="100" step="1">
-                        <input id="arrivals_per_hour" name="arrivals_per_hour" type="number" min="0" step="1">
+                    <div class="actions">
+                        <button id="simulate-button" type="submit" class="primary-button">
+                            <span aria-hidden="true" class="button-spinner"></span>
+                            <span aria-hidden="true" class="button-icon">&#9654;</span>
+                            <span>Simulation starten</span>
+                        </button>
                     </div>
-                    <small>Durchschnittliche Anzahl neuer Studierender oder Gruppen pro Stunde.</small>
                 </div>
 
-                <div class="field range-field">
-                    <label for="mean_stay_minutes">Aufenthalt in Minuten</label>
-                    <div class="range-row">
-                        <input id="mean_stay_minutes_range" type="range" min="1" max="300" step="1">
-                        <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="1" step="1">
+                <details class="compact-details settings-details">
+                    <summary>Erweiterte Einstellungen</summary>
+                    <div class="advanced-grid">
+                        <label class="field" for="study_seats">
+                            <span>Lernplätze</span>
+                            <input id="study_seats" name="study_seats" type="number" min="0" step="1">
+                            <small>Anzahl normaler Einzelarbeitsplätze.</small>
+                        </label>
+
+                        <label class="field" for="pc_workstations">
+                            <span>PC-Plätze</span>
+                            <input id="pc_workstations" name="pc_workstations" type="number" min="0" step="1">
+                            <small>Arbeitsplätze mit Computer.</small>
+                        </label>
+
+                        <label class="field" for="group_rooms">
+                            <span>Gruppenräume</span>
+                            <input id="group_rooms" name="group_rooms" type="number" min="0" step="1">
+                            <small>Räume für Gruppen von 2 bis 6 Personen.</small>
+                        </label>
+
+                        <div class="field range-field">
+                            <label for="arrivals_per_hour">Ankünfte/Stunde</label>
+                            <div class="range-row">
+                                <input id="arrivals_per_hour_range" type="range" min="0" max="100" step="1">
+                                <input id="arrivals_per_hour" name="arrivals_per_hour" type="number" min="0" step="1">
+                            </div>
+                            <small>Durchschnittliche Anzahl neuer Studierender oder Gruppen pro Stunde.</small>
+                        </div>
+
+                        <div class="field range-field">
+                            <label for="mean_stay_minutes">Aufenthalt in Minuten</label>
+                            <div class="range-row">
+                                <input id="mean_stay_minutes_range" type="range" min="1" max="300" step="1">
+                                <input id="mean_stay_minutes" name="mean_stay_minutes" type="number" min="1" step="1">
+                            </div>
+                            <small>Mittlere Nutzungsdauer. Die echte Dauer wird zufällig darum verteilt.</small>
+                        </div>
+
+                        <div class="field range-field">
+                            <label for="max_wait_minutes">Wartezeit in Minuten</label>
+                            <div class="range-row">
+                                <input id="max_wait_minutes_range" type="range" min="0" max="120" step="5">
+                                <input id="max_wait_minutes" name="max_wait_minutes" type="number" min="0" step="5">
+                            </div>
+                            <small>So lange wartet eine Anfrage maximal. Danach wird sie als abgewiesen gezählt.</small>
+                        </div>
+
+                        <label class="field" for="opening_minutes_per_day">
+                            <span>Öffnungszeit pro Tag</span>
+                            <input id="opening_minutes_per_day" name="opening_minutes_per_day" type="number" min="60" max="1440" step="1">
+                            <small>Simulierte Öffnungsdauer der Bibliothek pro Tag in Minuten.</small>
+                        </label>
                     </div>
-                    <small>Mittlere Nutzungsdauer. Die echte Dauer wird zufällig darum verteilt.</small>
-                </div>
+                </details>
 
-                <div class="field range-field">
-                    <label for="max_wait_minutes">Wartezeit in Minuten</label>
-                    <div class="range-row">
-                        <input id="max_wait_minutes_range" type="range" min="0" max="120" step="5">
-                        <input id="max_wait_minutes" name="max_wait_minutes" type="number" min="0" step="5">
-                    </div>
-                    <small>So lange wartet eine Anfrage maximal. Danach wird sie als abgewiesen gezählt.</small>
-                </div>
-
-                <label class="field" for="seed">
-                    <span>Random Seed</span>
-                    <input id="seed" name="seed" type="number" step="1">
-                    <small>Gleicher Seed bedeutet gleiche Zufallswerte und vergleichbare Ergebnisse.</small>
-                </label>
-
-                <div class="actions">
-                    <button id="simulate-button" type="submit" class="primary-button">
-                        <span aria-hidden="true" class="button-spinner"></span>
-                        <span aria-hidden="true" class="button-icon">&#9654;</span>
-                        <span>Simulation starten</span>
-                    </button>
+                <div class="status-row">
                     <p id="status-message" class="status-message status-idle" role="status" aria-live="polite">
                         Bereit.
                     </p>
+                    <div id="live-progress" class="live-progress" hidden>
+                        <span>Wiederholung <strong id="live-replication">0</strong></span>
+                        <span>Tag <strong id="live-day">0</strong></span>
+                        <span>Minute <strong id="live-minute">0</strong></span>
+                        <span>Laufzeit <strong id="live-elapsed">0.0 s</strong></span>
+                    </div>
                 </div>
             </form>
         </section>
@@ -99,32 +129,42 @@
         <section class="section-band summary-band" aria-live="polite">
             <div class="section-heading">
                 <h2>Ergebnis</h2>
+                <p id="result-config-line" class="result-config-line">Noch kein Ergebnis berechnet.</p>
+                <p id="summary-note">Werte beschreiben eine durchschnittliche vollständige Prüfungsphase über die Wiederholungen.</p>
             </div>
-            <div class="summary-grid">
+            <div class="primary-kpis">
                 <article class="metric-card">
-                    <span>Ankünfte</span>
-                    <strong id="metric-arrivals">0</strong>
-                </article>
-                <article class="metric-card">
-                    <span>Bedient</span>
-                    <strong id="metric-served">0</strong>
-                </article>
-                <article class="metric-card">
-                    <span>Abgewiesen</span>
-                    <strong id="metric-rejected">0</strong>
-                </article>
-                <article class="metric-card">
-                    <span>Ablehnungsrate</span>
+                    <span>Mittlere Ablehnungsrate</span>
                     <strong id="metric-rejection-rate">0%</strong>
                 </article>
+                <article class="metric-card">
+                    <span>Mittlere Wartezeit</span>
+                    <strong id="metric-waiting-time">0 min</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Stärkster Tag</span>
+                    <strong id="metric-busiest-day">0</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Hauptengpass</span>
+                    <strong id="metric-bottleneck">-</strong>
+                </article>
+            </div>
+            <div class="secondary-kpis">
+                <span>Durchschnittliche Ankünfte: <strong id="metric-arrivals">0</strong></span>
+                <span>Durchschnittlich bedient: <strong id="metric-served">0</strong></span>
+                <span>Durchschnittlich abgewiesen: <strong id="metric-rejected">0</strong></span>
+                <span>Prüfungstage: <strong id="metric-exam-days">0</strong></span>
+                <span>Wiederholungen: <strong id="metric-replications">0</strong></span>
             </div>
         </section>
 
         <section id="interpretation-section" class="section-band interpretation-band" aria-live="polite" hidden>
-            <div class="section-heading">
-                <h2>Kurze Interpretation</h2>
-            </div>
-            <ul id="interpretation-list" class="interpretation-list"></ul>
+            <p id="interpretation-headline" class="interpretation-headline"></p>
+            <details class="compact-details">
+                <summary>Interpretation anzeigen</summary>
+                <ul id="interpretation-list" class="interpretation-list"></ul>
+            </details>
         </section>
 
         <section class="section-band">
@@ -133,43 +173,82 @@
             </div>
             <div class="charts-grid">
                 <article class="chart-panel">
-                    <h3>Auslastung</h3>
+                    <h3>Anfragen je Prüfungstag</h3>
+                    <canvas id="daily-requests-chart"></canvas>
+                </article>
+                <article class="chart-panel">
+                    <h3>Auslastung je Ressource</h3>
                     <canvas id="utilization-chart"></canvas>
                 </article>
-                <article class="chart-panel">
-                    <h3>Abgewiesen</h3>
-                    <canvas id="rejected-chart"></canvas>
-                </article>
-                <article class="chart-panel">
-                    <h3>Belegung</h3>
-                    <canvas id="occupancy-chart"></canvas>
-                </article>
-                <article class="chart-panel">
-                    <h3>Warteschlangen</h3>
-                    <canvas id="queue-chart"></canvas>
-                </article>
             </div>
+            <details class="compact-details charts-details">
+                <summary>Weitere Diagramme anzeigen</summary>
+                <div class="charts-grid">
+                    <article class="chart-panel">
+                        <h3>Abgewiesen je Ressource</h3>
+                        <canvas id="rejected-chart"></canvas>
+                    </article>
+                    <article class="chart-panel">
+                        <h3>Ablehnungsrate je Prüfungstag</h3>
+                        <canvas id="daily-rejection-chart"></canvas>
+                    </article>
+                    <article class="chart-panel">
+                        <h3>Mittlere Wartezeit je Prüfungstag</h3>
+                        <canvas id="daily-waiting-chart"></canvas>
+                    </article>
+                    <article class="chart-panel">
+                        <h3>Durchschnittliche Belegung</h3>
+                        <canvas id="occupancy-chart"></canvas>
+                    </article>
+                    <article class="chart-panel">
+                        <h3>Durchschnittliche Warteschlangen</h3>
+                        <canvas id="queue-chart"></canvas>
+                    </article>
+                </div>
+            </details>
         </section>
 
-        <section class="section-band">
-            <div class="section-heading">
-                <h2>Tabelle</h2>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ressource</th>
-                            <th>Bedient</th>
-                            <th>Abgewiesen</th>
-                            <th>Durchschn. Wartezeit</th>
-                            <th>Auslastung</th>
-                            <th>Max. Warteschlange</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resource-table-body"></tbody>
-                </table>
-            </div>
+        <section id="resource-table-section" class="section-band" hidden>
+            <details class="compact-details">
+                <summary>Ressourcendetails anzeigen</summary>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ressource</th>
+                                <th>Bedient</th>
+                                <th>Abgewiesen</th>
+                                <th>Durchschn. Wartezeit</th>
+                                <th>Auslastung</th>
+                                <th>Max. Warteschlange</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resource-table-body"></tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <section id="daily-table-section" class="section-band" hidden>
+            <details class="compact-details">
+                <summary>Detaillierte Tagesergebnisse anzeigen</summary>
+                <div class="table-wrap daily-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tag</th>
+                                <th>Ankünfte</th>
+                                <th>Bedient</th>
+                                <th>Abgewiesen</th>
+                                <th>Ablehnungsrate</th>
+                                <th>Mittlere Wartezeit</th>
+                                <th>Maximale Warteschlange</th>
+                            </tr>
+                        </thead>
+                        <tbody id="daily-table-body"></tbody>
+                    </table>
+                </div>
+            </details>
         </section>
     </main>
 

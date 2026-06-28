@@ -1,6 +1,6 @@
 # Bibliotheks-/Lernraum-Simulation mit SimPy
 
-Flask-Webanwendung für das Modul "Diskrete Simulation". Das Projekt simuliert einen Studientag in einer Hochschulbibliothek mit Einzelarbeitsplätzen, PC-Arbeitsplätzen und Gruppenräumen.
+Flask-Webanwendung für das Modul "Diskrete Simulation". Das Projekt simuliert eine Prüfungsphase in einer Hochschulbibliothek mit Einzelarbeitsplätzen, PC-Arbeitsplätzen und Gruppenräumen.
 
 ## Motivation
 
@@ -19,10 +19,12 @@ Vor Prüfungsphasen werden Lernplätze knapp. Die Simulation zeigt, wann Wartesc
 ## Funktionen
 
 - drei Szenarien: Normalbetrieb, Prüfungsphase, Prüfungsphase mit Reservierungssystem
-- editierbare Kapazitäten und Simulationsparameter
+- editierbare Kapazitäten, Öffnungstage, Öffnungsdauer und Simulationsparameter
+- getrennte Simulation mehrerer Öffnungstage mit täglich leeren Ressourcen und Warteschlangen
+- unabhängige Wiederholungen für stabilere Mittelwerte
 - reproduzierbare Läufe über optionalen Random Seed
 - sichtbarer Laufstatus beim Start der Simulation
-- KPI-Karten, Ergebnistabelle und Diagramme
+- KPI-Karten, Ressourcen- und Tagestabellen, Diagramme und 95%-Konfidenzintervalle im JSON-Ergebnis
 - kurze automatische Interpretation der Ergebnisse
 - JSON-Endpunkt `POST /simulate`
 
@@ -89,6 +91,14 @@ library-room-simulation/
     +-- script.js
 ```
 
+## Prüfungsphase, Wiederholungen und Seeds
+
+Eine Prüfungsphase besteht aus mehreren getrennten Öffnungstagen. Für jeden Tag wird eine neue SimPy-Umgebung erstellt. Ressourcen, Warteschlangen, Studierende, Gruppen, Reservierungen und offene Anfragen werden nicht in den nächsten Tag übernommen. Das entspricht der Annahme, dass die Bibliothek zwischen zwei Öffnungstagen vollständig schließt.
+
+Bei mehreren Wiederholungen wird die vollständige Prüfungsphase mehrfach unabhängig simuliert. Die angezeigten Summen sind deshalb Mittelwerte einer vollständigen Prüfungsphase, nicht die Summe aller Wiederholungen. Zusätzlich berechnet das Backend Mittelwert, Standardabweichung und ein 95%-Konfidenzintervall für Gesamtankünfte, Ablehnungsrate und mittlere Wartezeit.
+
+Ein fester Random Seed reproduziert die komplette Prüfungsphase. Aus ihm werden deterministisch getrennte Zufallsströme für jede Wiederholung und jeden Tag abgeleitet. Bleibt der Seed leer, erzeugt jeder Start neue Zufallswerte.
+
 ## Kurze Interpretation der Ergebnisse
 
 Eine hohe Auslastung bedeutet nicht automatisch ein gutes Ergebnis. Wenn Ressourcen fast dauerhaft belegt sind, entstehen schneller Warteschlangen und Ablehnungen. Wichtig sind deshalb Ablehnungsrate, durchschnittliche Wartezeit und maximale Warteschlangenlänge.
@@ -97,7 +107,7 @@ Das Reservierungssystem ist bewusst einfach modelliert: Reservierte Gruppen erha
 
 ## Modellgrenzen
 
-Die Parameter sind Annahmen und müssten in einer realen Untersuchung validiert werden. Das Modell enthält keine Datenbank, keinen Login, keine echten Reservierungsdaten und keine Tagesganglinie. Es bleibt absichtlich kompakt, damit Modell, Code und Ergebnisse nachvollziehbar sind.
+Die Parameter sind Modellannahmen und müssten in einer realen Untersuchung mit Beobachtungsdaten validiert werden. Das Modell enthält keine Datenbank, keinen Login, keine echten Reservierungsdaten und keine Tagesganglinie. Es bleibt absichtlich kompakt, damit Modell, Code und Ergebnisse nachvollziehbar sind.
 
 ## Screenshots
 
